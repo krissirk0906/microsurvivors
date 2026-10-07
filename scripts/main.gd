@@ -21,20 +21,49 @@ var shake := 0.0
 var bursts: Array = []
 var best := {"highscore": 0, "best_time": 0.0}
 var autotest := false
+var test_paused_once := false
+var test_resumed_once := false
+var test_pause_t := 0
+var shot_mode := ""
+var shot_frame := 0
+var shot_done := false
+var shot_armed := false
+var shot_level_t := 0
+var shot_end_t := 0
+
+func snap(tag: String) -> void:
+	var img := get_viewport().get_texture().get_image()
+	var path := "/tmp/opencode/shot_%s.png" % tag
+	img.save_png(path)
+	print("SHOT_SAVED: ", path)
 var haptics_on := true
 var reduce_motion := false
+var sounds_on := true
+
+func apply_prefs() -> void:
+	sounds.enabled = sounds_on
+	haptics_on = sounds_on
+	MSave.save_prefs(sounds_on, reduce_motion)
+	hud.sync_toggles()
 
 const WIN_TIME := 180.0
 const ARENA := 900.0
 
 func _ready() -> void:
 	best = MSave.load_data()
+	sounds_on = int(best.get("sound", 1)) == 1
+	reduce_motion = int(best.get("motion", 0)) == 1
 	autotest = OS.get_cmdline_user_args().has("autotest")
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("shot="):
+			shot_mode = a.get_slice("=", 1)
+			autotest = true
 	sounds = MSounds.new()
 	add_child(sounds)
+	sounds.enabled = sounds_on
+	haptics_on = sounds_on
 	cam = Camera2D.new()
-	cam.position_smoothing_enabled = true
-	cam.position_smoothing_speed = 8.0
+	cam.enabled = true
 	add_child(cam)
 	spawner = MSpawner.new()
 	spawner.setup(self)
@@ -43,7 +72,18 @@ func _ready() -> void:
 	hud.setup(self)
 	add_child(hud)
 	to_title()
-	if autotest:
+	if shot_mode == "title":
+		Engine.time_scale = 1.0
+	elif shot_mode == "game":
+		Engine.time_scale = 4.0
+		start_run()
+	elif shot_mode == "levelup":
+		Engine.time_scale = 8.0
+		start_run()
+	elif shot_mode == "over":
+		Engine.time_scale = 20.0
+		start_run()
+	elif autotest:
 		Engine.time_scale = 20.0
 		start_run()
 
@@ -102,6 +142,9 @@ func _clear_field() -> void:
 func _process(delta: float) -> void:
 	if state == State.RUNNING:
 		run_time += delta
+		if autotest and shot_mode in ["", "pause"] and not get_tree().paused and not test_paused_once and run_time > 8.0:
+			test_paused_once = true
+			toggle_pause()
 		if run_time >= WIN_TIME and not won:
 			won = true
 			_win()
@@ -114,6 +157,18 @@ func _process(delta: float) -> void:
 		cam.offset = Vector2.ZERO
 	_update_bursts(delta)
 	queue_redraw()
+
+func _shot_tick() -> void:
+	shot_frame += 1
+	if shot_mode == "title":
+		if shot_frame == 90 and not shot_done:
+			shot_done = true
+			snap("title")
+			get_tree().quit()
+	elif shot_mode == "game":
+		if shot_frame == 60 and not shot_done:
+			shot_done = true
+			snap("game")
 
 func _win() -> void:
 	state = State.GAMEOVER
@@ -160,7 +215,11 @@ func _open_levelup() -> void:
 		return
 	hud.show_upgrades(current_choices)
 	if autotest:
-		call_deferred("choose_upgrade", 0)
+		if shot_mode == "levelup" and not shot_done:
+			shot_armed = true
+			shot_level_t = 0
+		else:
+			call_deferred("choose_upgrade", 0)
 
 func choose_upgrade(idx: int) -> void:
 	if state != State.LEVELUP:
@@ -221,7 +280,7 @@ func _ring_pos() -> Vector2:
 	if player != null and is_instance_valid(player):
 		c = player.position
 	var a := randf() * TAU
-	var r := randf_range(560.0, 680.0)
+	var r := randf_range(480.0, 600.0)
 	var p := c + Vector2(cos(a), sin(a)) * r
 	p.x = clampf(p.x, -ARENA, ARENA)
 	p.y = clampf(p.y, -ARENA, ARENA)
@@ -247,7 +306,8 @@ func _update_bursts(delta: float) -> void:
 		bursts[i] = b
 
 func _draw() -> void:
-	# floor
+	# floor (outer span larger than any camera view so clear color never shows)
+	draw_rect(Rect2(-4000, -4000, 8000, 8000), Color("#0B0A12"))
 	draw_rect(Rect2(-ARENA - 40, -ARENA - 40, (ARENA + 40) * 2, (ARENA + 40) * 2), Color("#0B0A12"))
 	draw_rect(Rect2(-ARENA, -ARENA, ARENA * 2, ARENA * 2), Color("#14121F"))
 	var step := 120.0

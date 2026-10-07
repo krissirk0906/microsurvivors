@@ -36,6 +36,7 @@ var sound_btn: Button
 var motion_btn: Button
 var level_btns: Array = []
 var over_stats: Label
+var over_head: Label
 var title_best: Label
 
 var touch_id := -1
@@ -85,11 +86,11 @@ func _panel_style() -> StyleBoxFlat:
 	sb.shadow_size = 18
 	return sb
 
-func _btn(b: Button, text: String, bg: Color, fg: Color) -> Button:
+func _btn(b: Button, text: String, bg: Color, fg: Color, fsize := 32) -> Button:
 	b.text = text
 	b.custom_minimum_size = Vector2(0, 92)
 	b.add_theme_font_override("font", FONT_UI)
-	b.add_theme_font_size_override("font_size", 32)
+	b.add_theme_font_size_override("font_size", fsize)
 	b.add_theme_color_override("font_color", fg)
 	b.add_theme_color_override("font_hover_color", fg)
 	b.add_theme_color_override("font_pressed_color", fg)
@@ -110,7 +111,6 @@ func _btn(b: Button, text: String, bg: Color, fg: Color) -> Button:
 
 func _bar(bar: ProgressBar, fill: Color, h: float) -> void:
 	bar.min_value = 0
-	bar.value = 0
 	bar.custom_minimum_size = Vector2(0, h)
 	bar.show_percentage = false
 	var bg := StyleBoxFlat.new()
@@ -187,13 +187,13 @@ func _build_top() -> void:
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 28)
 	top.add_child(row)
-	timer_label = _font(Label.new(), true, 52, C_TEXT)
+	timer_label = _font(Label.new(), false, 56, C_TEXT)
 	timer_label.text = "0:00"
 	row.add_child(timer_label)
-	score_label = _font(Label.new(), true, 30, C_YELLOW)
+	score_label = _font(Label.new(), false, 34, C_YELLOW)
 	score_label.text = "0"
 	row.add_child(score_label)
-	level_label = _font(Label.new(), true, 30, C_GREEN)
+	level_label = _font(Label.new(), false, 34, C_GREEN)
 	level_label.text = "Lv 1"
 	row.add_child(level_label)
 	var pause := Button.new()
@@ -211,9 +211,10 @@ func _build_dmg_flash() -> void:
 
 func _build_hint() -> void:
 	hint_label = _title_label("DRAG ANYWHERE TO MOVE", 30, C_TEXT, true)
-	hint_label.set_anchors_preset(Control.PRESET_CENTER)
-	hint_label.offset_top = 180
-	hint_label.offset_bottom = 240
+	hint_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	hint_label.offset_top = 480
+	hint_label.offset_bottom = 560
+	hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hint_label.visible = false
 	add_child(hint_label)
@@ -224,14 +225,21 @@ func _build_stick() -> void:
 	stick_view.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(stick_view)
 
-func _panel() -> PanelContainer:
+func _panel(parent: Control, sep: int) -> VBoxContainer:
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.offset_top = 110
+	center.offset_bottom = -70
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(center)
 	var p := PanelContainer.new()
-	p.set_anchors_preset(Control.PRESET_CENTER)
-	p.offset_top = 80
-	p.offset_bottom = 80
-	p.custom_minimum_size = Vector2(600, 0)
+	p.custom_minimum_size = Vector2(560, 0)
 	p.add_theme_stylebox_override("panel", _panel_style())
-	return p
+	center.add_child(p)
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", sep)
+	p.add_child(v)
+	return v
 
 func _fade_in(c: Control) -> void:
 	c.modulate = Color(1, 1, 1, 0)
@@ -250,14 +258,10 @@ func _build_title() -> void:
 	title_screen.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(title_screen)
 	_dim(title_screen, 0.62)
-	var p := _panel()
-	title_screen.add_child(p)
-	var v := VBoxContainer.new()
-	v.add_theme_constant_override("separation", 14)
-	p.add_child(v)
-	var kick := _title_label("ONE-THUMB SURVIVOR", 22, C_PURPLE, true)
+	var v := _panel(title_screen, 14)
+	var kick := _title_label("ONE-THUMB SURVIVOR", 20, C_PURPLE, true)
 	v.add_child(kick)
-	var logo := _title_label("MICRO\nSURVIVORS", 76, C_YELLOW, true)
+	var logo := _title_label("MICRO\nSURVIVORS", 60, C_YELLOW, true)
 	v.add_child(logo)
 	v.add_child(_title_label("Lunch Break", 34, C_TEXT))
 	v.add_child(_title_label("Drag anywhere to move. Weapons fire on their own. Survive 3:00.", 24, C_DIM))
@@ -274,27 +278,32 @@ func _build_title() -> void:
 	sound_btn = Button.new()
 	sound_btn.custom_minimum_size = Vector2(0, 64)
 	sound_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_btn(sound_btn, "SOUND: ON", C_SURFACE, C_TEXT)
+	_btn(sound_btn, "SOUND: ON", C_SURFACE, C_TEXT, 26)
 	sound_btn.pressed.connect(_on_sound_toggle)
 	toggles.add_child(sound_btn)
 	motion_btn = Button.new()
 	motion_btn.custom_minimum_size = Vector2(0, 64)
 	motion_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_btn(motion_btn, "MOTION: FULL", C_SURFACE, C_TEXT)
+	_btn(motion_btn, "MOTION: FULL", C_SURFACE, C_TEXT, 26)
 	motion_btn.pressed.connect(_on_motion_toggle)
 	toggles.add_child(motion_btn)
-	v.add_child(_title_label("v0.3 · best on device · no ads", 20, C_DIM))
+	v.add_child(_title_label("v0.4 · best on device · no ads", 20, C_DIM))
 
 func _on_sound_toggle() -> void:
-	main.sounds.enabled = not main.sounds.enabled
-	main.haptics_on = main.sounds.enabled
-	sound_btn.text = "SOUND: ON" if main.sounds.enabled else "SOUND: OFF"
+	main.sounds_on = not main.sounds_on
+	main.apply_prefs()
 	main.sounds.click()
 
 func _on_motion_toggle() -> void:
 	main.reduce_motion = not main.reduce_motion
-	motion_btn.text = "MOTION: REDUCED" if main.reduce_motion else "MOTION: FULL"
+	main.apply_prefs()
 	main.sounds.click()
+
+func sync_toggles() -> void:
+	if sound_btn != null:
+		sound_btn.text = "SOUND: ON" if main.sounds_on else "SOUND: OFF"
+	if motion_btn != null:
+		motion_btn.text = "MOTION: REDUCED" if main.reduce_motion else "MOTION: FULL"
 
 func _build_level() -> void:
 	level_screen = Control.new()
@@ -302,17 +311,13 @@ func _build_level() -> void:
 	level_screen.visible = false
 	add_child(level_screen)
 	_dim(level_screen, 0.6)
-	var p := _panel()
-	level_screen.add_child(p)
-	var v := VBoxContainer.new()
-	v.add_theme_constant_override("separation", 14)
-	p.add_child(v)
+	var v := _panel(level_screen, 14)
 	v.add_child(_title_label("LEVEL UP!", 52, C_GREEN, true))
 	v.add_child(_title_label("Pick one upgrade", 24, C_DIM))
 	level_btns.clear()
 	for i in 3:
 		var b := Button.new()
-		_btn(b, "...", C_SURFACE, C_YELLOW)
+		_btn(b, "...", C_SURFACE, C_YELLOW, 28)
 		var idx := i
 		b.pressed.connect(func() -> void: main.choose_upgrade(idx))
 		v.add_child(b)
@@ -324,12 +329,9 @@ func _build_over() -> void:
 	over_screen.visible = false
 	add_child(over_screen)
 	_dim(over_screen, 0.65)
-	var p := _panel()
-	over_screen.add_child(p)
-	var v := VBoxContainer.new()
-	v.add_theme_constant_override("separation", 16)
-	p.add_child(v)
+	var v := _panel(over_screen, 16)
 	v.add_child(_title_label("RUN OVER", 60, C_PINK, true))
+	over_head = v.get_child(v.get_child_count() - 1)
 	over_stats = _title_label("", 28, C_TEXT)
 	v.add_child(over_stats)
 	var gomenu := Button.new()
@@ -347,11 +349,7 @@ func _build_pause() -> void:
 	pause_screen.visible = false
 	add_child(pause_screen)
 	_dim(pause_screen, 0.6)
-	var p := _panel()
-	pause_screen.add_child(p)
-	var v := VBoxContainer.new()
-	v.add_theme_constant_override("separation", 16)
-	p.add_child(v)
+	var v := _panel(pause_screen, 16)
 	v.add_child(_title_label("PAUSED", 56, C_TEXT, true))
 	var resume := Button.new()
 	_btn(resume, "RESUME", C_GREEN, C_BG)
@@ -376,6 +374,7 @@ func show_title() -> void:
 	hint_label.visible = false
 	var d: Dictionary = MSave.load_data()
 	title_best.text = "BEST  %d pts   ·   %s" % [int(d["highscore"]), _fmt(float(d["best_time"]))]
+	sync_toggles()
 
 func show_hud() -> void:
 	title_screen.visible = false
@@ -410,9 +409,8 @@ func hide_upgrades() -> void:
 func show_gameover(win: bool, score: int, time: float, kills: int, level: int) -> void:
 	over_screen.visible = true
 	_fade_in(over_screen)
-	var head := over_screen.get_child(1).get_child(0).get_child(0) as Label
-	head.text = "YOU SURVIVED!" if win else "RUN OVER"
-	_font(head, true, 60, C_GREEN if win else C_PINK)
+	over_head.text = "YOU SURVIVED!" if win else "RUN OVER"
+	_font(over_head, true, 60, C_GREEN if win else C_PINK)
 	over_stats.text = "Score  %d\nTime  %s\nKills  %d   ·   Level %d" % [score, _fmt(time), kills, level]
 
 func _fmt(t: float) -> String:
@@ -421,6 +419,28 @@ func _fmt(t: float) -> String:
 	return "%d:%02d" % [m, s]
 
 func _process(delta: float) -> void:
+	if main != null and main.shot_mode != "":
+		main._shot_tick()
+	if main != null and (main.shot_mode == "pause" and pause_screen.visible or main.shot_mode == "over" and over_screen.visible) and not main.shot_done:
+		main.shot_end_t += 1
+		if main.shot_end_t == 15:
+			main.snap(main.shot_mode)
+			main.shot_done = true
+		elif main.shot_end_t > 40:
+			get_tree().quit()
+	if main != null and main.autotest and get_tree().paused and main.test_paused_once and not main.test_resumed_once:
+		main.test_pause_t += 1
+		if main.test_pause_t > 120:
+			main.test_resumed_once = true
+			main.resume_game()
+	if main != null and main.shot_armed and main.state == main.State.LEVELUP:
+		main.shot_level_t += 1
+		if main.shot_level_t == 20 and not main.shot_done:
+			main.shot_done = true
+			main.snap("levelup")
+		if main.shot_level_t > 60:
+			main.shot_armed = false
+			main.choose_upgrade(0)
 	if dmg_a > 0.0:
 		dmg_a = maxf(0.0, dmg_a - delta * 1.8)
 		dmg_rect.color = Color(1, 0.15, 0.3, dmg_a * 0.45)
@@ -484,7 +504,7 @@ func _input(event: InputEvent) -> void:
 		_push_stick()
 
 func _on_ui(pos: Vector2) -> bool:
-	if title_screen.visible or level_screen.visible or over_screen.visible:
+	if title_screen.visible or level_screen.visible or over_screen.visible or pause_screen.visible:
 		return true
 	return pos.y < 210.0
 
