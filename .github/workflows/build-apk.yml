@@ -50,7 +50,7 @@ jobs:
           python3 -c "import zipfile; zipfile.ZipFile('/tmp/godot/templates.tpz').extractall('/tmp/godot/tpl')"
           cp -r /tmp/godot/tpl/templates/* \
             "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_STATUS}/"
-          godot --version
+          /tmp/godot/godot --version
 
       - name: Configure Godot Android settings + CI debug keystore
         run: |
