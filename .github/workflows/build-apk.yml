@@ -31,8 +31,9 @@ jobs:
 
       - name: Install Android SDK packages
         run: |
-          yes | sdkmanager --licenses > /dev/null
-          sdkmanager "platform-tools" "build-tools;35.0.1" "platforms;android-35"
+          SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses > /dev/null
+          "$SDKMANAGER" "platform-tools" "build-tools;35.0.1" "platforms;android-35"
 
       - name: Install Godot + export templates
         run: |
