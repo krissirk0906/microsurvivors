@@ -300,7 +300,7 @@ func _build_title() -> void:
 	_btn(motion_btn, "MOTION: FULL", C_SURFACE, C_TEXT, 26)
 	motion_btn.pressed.connect(_on_motion_toggle)
 	toggles.add_child(motion_btn)
-	v.add_child(_title_label("v0.4 · best on device · no ads", 20, C_DIM))
+	v.add_child(_title_label("v0.5 · best on device · no ads", 20, C_DIM))
 
 func _on_sound_toggle() -> void:
 	main.sounds_on = not main.sounds_on
