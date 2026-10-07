@@ -21,6 +21,8 @@ var shake := 0.0
 var bursts: Array = []
 var best := {"highscore": 0, "best_time": 0.0}
 var autotest := false
+var haptics_on := true
+var reduce_motion := false
 
 const WIN_TIME := 180.0
 const ARENA := 900.0
@@ -73,7 +75,17 @@ func start_run() -> void:
 func toggle_pause() -> void:
 	if state != State.RUNNING:
 		return
-	get_tree().paused = not get_tree().paused
+	if get_tree().paused:
+		resume_game()
+	else:
+		get_tree().paused = true
+		sounds.click()
+		hud.show_pause()
+
+func resume_game() -> void:
+	get_tree().paused = false
+	sounds.click()
+	hud.hide_pause()
 
 func _clear_field() -> void:
 	for n in get_tree().get_nodes_in_group("enemies"):
@@ -111,6 +123,7 @@ func _on_player_died() -> void:
 	if state != State.RUNNING:
 		return
 	state = State.GAMEOVER
+	buzz(150)
 	burst(player.position, Color("#FF3CAC"), 26)
 	_finish(false)
 
@@ -138,6 +151,7 @@ func _on_player_leveled() -> void:
 func _open_levelup() -> void:
 	state = State.LEVELUP
 	get_tree().paused = true
+	buzz(60)
 	sounds.level()
 	current_choices = player.upgrade_choices()
 	if current_choices.is_empty():
@@ -151,6 +165,7 @@ func _open_levelup() -> void:
 func choose_upgrade(idx: int) -> void:
 	if state != State.LEVELUP:
 		return
+	sounds.click()
 	if idx < current_choices.size():
 		player.apply_upgrade(current_choices[idx]["id"])
 		burst(player.position, Color("#00FF88"), 12)
@@ -175,7 +190,13 @@ func add_score(v: int) -> void:
 	score += v
 
 func add_shake(v: float) -> void:
+	if reduce_motion:
+		return
 	shake = minf(14.0, shake + v)
+
+func buzz(ms: int) -> void:
+	if haptics_on:
+		Input.vibrate_handheld(ms)
 
 func spawn_bullet(p: Vector2, v: Vector2, d: float, pierce: int, boom: bool) -> void:
 	var b := MBullet.new()
@@ -207,6 +228,8 @@ func _ring_pos() -> Vector2:
 	return p
 
 func burst(p: Vector2, c: Color, n: int) -> void:
+	if reduce_motion:
+		return
 	for i in n:
 		var a := randf() * TAU
 		var sp := randf_range(80.0, 320.0)

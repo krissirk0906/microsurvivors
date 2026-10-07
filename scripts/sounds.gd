@@ -5,6 +5,7 @@ var p_shoot: AudioStreamPlayer
 var p_hit: AudioStreamPlayer
 var p_gem: AudioStreamPlayer
 var p_level: AudioStreamPlayer
+var p_click: AudioStreamPlayer
 var enabled := true
 
 func _ready() -> void:
@@ -12,6 +13,7 @@ func _ready() -> void:
 	p_hit = _mk(180.0, 0.09, 0.4)
 	p_gem = _mk(1180.0, 0.04, 0.2)
 	p_level = _mk(660.0, 0.16, 0.35)
+	p_click = _mk(520.0, 0.035, 0.22)
 
 func _mk(freq: float, dur: float, vol: float) -> AudioStreamPlayer:
 	var rate := 22050
@@ -47,3 +49,7 @@ func gem() -> void:
 func level() -> void:
 	if enabled:
 		p_level.play()
+
+func click() -> void:
+	if enabled:
+		p_click.play()

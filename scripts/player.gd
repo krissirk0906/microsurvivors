@@ -110,7 +110,8 @@ func take_damage(amount: float) -> void:
 		return
 	hp -= amount
 	iframes = 0.6
-	flash = 0.15
+	flash = 0.0 if main.reduce_motion else 0.15
+	main.buzz(25)
 	main.sounds.hit()
 	main.add_shake(4.0)
 	changed.emit()

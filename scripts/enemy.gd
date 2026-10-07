@@ -61,7 +61,7 @@ func _process(delta: float) -> void:
 
 func take_damage(amount: float) -> void:
 	hp -= amount
-	flash = 0.08
+	flash = 0.0 if main.reduce_motion else 0.08
 	queue_redraw()
 	if hp <= 0.0:
 		die()
