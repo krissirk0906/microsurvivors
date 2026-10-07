@@ -47,10 +47,13 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	if boomerang:
+		draw_circle(Vector2.ZERO, radius + 7.0, Color(0, 1, 0.53, 0.22))
 		draw_circle(Vector2.ZERO, radius, Color("#00FF88"))
 		draw_arc(Vector2.ZERO, radius, 0, TAU, 16, Color("#0F0E17"), 2.5)
 		draw_line(Vector2(-5, 0), Vector2(5, 0), Color("#0F0E17"), 3.0)
+		draw_circle(Vector2(-3, -4), 2.5, Color(1, 1, 1, 0.7))
 	else:
+		draw_circle(Vector2.ZERO, radius + 7.0, Color(1, 0.85, 0.24, 0.22))
 		draw_circle(Vector2.ZERO, radius, Color("#FFD93D"))
 		draw_arc(Vector2.ZERO, radius, 0, TAU, 16, Color("#0F0E17"), 2.5)
-		draw_circle(Vector2.ZERO, 3.0, Color("#FFF8E7"))
+		draw_circle(Vector2(-2, -3), 3.0, Color("#FFF8E7"))

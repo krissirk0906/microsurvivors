@@ -74,7 +74,8 @@ func _draw() -> void:
 	var c := Color.WHITE if flash > 0.0 else color
 	var bob := sin(wob) * 2.0
 	draw_circle(Vector2(2, 4), radius, Color(0, 0, 0, 0.25))
-	draw_circle(Vector2(0, bob), radius, c)
+	draw_circle(Vector2(0, bob), radius, c.darkened(0.25))
+	draw_circle(Vector2(-radius * 0.18, -radius * 0.22 + bob), radius * 0.82, c)
 	draw_arc(Vector2(0, bob), radius, 0, TAU, 24, Color("#0F0E17"), 3.0)
 	# angry eyes
 	var ex := radius * 0.35

@@ -178,9 +178,11 @@ func _draw() -> void:
 		body = Color.WHITE
 	# shadow
 	draw_circle(Vector2(3, 5), 22.0, Color(0, 0, 0, 0.25))
-	# body (lunchbox hero)
-	draw_circle(Vector2.ZERO, 22.0, body)
+	# body (lunchbox hero) with simple shading
+	draw_circle(Vector2.ZERO, 22.0, body.darkened(0.2))
+	draw_circle(Vector2(-3, -4), 18.0, body)
 	draw_arc(Vector2.ZERO, 22.0, 0, TAU, 24, Color("#0F0E17"), 3.0)
+	draw_circle(Vector2(-9, -10), 4.5, Color(1, 1, 1, 0.5))
 	# face
 	draw_circle(Vector2(-7, -3), 4.0, Color("#0F0E17"))
 	draw_circle(Vector2(7, -3), 4.0, Color("#0F0E17"))

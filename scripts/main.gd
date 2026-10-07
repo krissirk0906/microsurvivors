@@ -225,17 +225,20 @@ func _update_bursts(delta: float) -> void:
 
 func _draw() -> void:
 	# floor
-	draw_rect(Rect2(-ARENA - 40, -ARENA - 40, (ARENA + 40) * 2, (ARENA + 40) * 2), Color("#151423"))
+	draw_rect(Rect2(-ARENA - 40, -ARENA - 40, (ARENA + 40) * 2, (ARENA + 40) * 2), Color("#0B0A12"))
+	draw_rect(Rect2(-ARENA, -ARENA, ARENA * 2, ARENA * 2), Color("#14121F"))
 	var step := 120.0
 	var x := -ARENA
 	while x <= ARENA:
-		draw_line(Vector2(x, -ARENA), Vector2(x, ARENA), Color(1, 1, 1, 0.04), 2.0)
+		draw_line(Vector2(x, -ARENA), Vector2(x, ARENA), Color(1, 1, 1, 0.05), 2.0)
 		x += step
 	var y := -ARENA
 	while y <= ARENA:
-		draw_line(Vector2(-ARENA, y), Vector2(ARENA, y), Color(1, 1, 1, 0.04), 2.0)
+		draw_line(Vector2(-ARENA, y), Vector2(ARENA, y), Color(1, 1, 1, 0.05), 2.0)
 		y += step
-	draw_rect(Rect2(-ARENA, -ARENA, ARENA * 2, ARENA * 2), Color("#00FF88"), false, 6.0)
+	# arena edge glow
+	draw_rect(Rect2(-ARENA, -ARENA, ARENA * 2, ARENA * 2), Color(1, 0.85, 0.24, 0.9), false, 6.0)
+	draw_rect(Rect2(-ARENA - 10, -ARENA - 10, (ARENA + 10) * 2, (ARENA + 10) * 2), Color(1, 0.85, 0.24, 0.18), false, 10.0)
 	for b in bursts:
 		var bd: Dictionary = b
 		draw_circle(bd["p"], 5.0 * clampf(float(bd["life"]) * 2.0, 0.2, 1.0), bd["c"])
