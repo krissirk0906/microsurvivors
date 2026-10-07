@@ -53,7 +53,11 @@ func _process(delta: float) -> void:
 			var away := (position - threat.position).normalized()
 			dir = (away + Vector2(-away.y, away.x) * 0.6).normalized()
 		else:
-			dir = Vector2.RIGHT.rotated(float(Time.get_ticks_msec()) / 900.0)
+			var gem := _nearest_gem(700.0)
+			if gem != null:
+				dir = (gem.position - position).normalized()
+			else:
+				dir = Vector2.RIGHT.rotated(float(Time.get_ticks_msec()) / 900.0)
 	var kb := Vector2(
 		Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left"),
 		Input.get_action_strength("ui_down") - Input.get_action_strength("ui_up")
@@ -84,6 +88,16 @@ func _nearest_enemy(max_dist: float) -> Node2D:
 		if d < bd:
 			bd = d
 			best = e
+	return best
+
+func _nearest_gem(max_dist: float) -> Node2D:
+	var best: Node2D = null
+	var bd := max_dist
+	for g in get_tree().get_nodes_in_group("gems"):
+		var d = position.distance_to(g.position)
+		if d < bd:
+			bd = d
+			best = g
 	return best
 
 func _fire_blaster() -> void:
@@ -159,17 +173,17 @@ func apply_upgrade(id: String) -> void:
 func upgrade_choices() -> Array:
 	var pool: Array = []
 	if dmg_lv < 5:
-		pool.append({"id": "dmg", "name": "+20% Damage"})
+		pool.append({"id": "dmg", "name": "+20% Damage", "desc": "All weapons hit harder"})
 	if rate_lv < 5:
-		pool.append({"id": "rate", "name": "+15% Fire Rate"})
+		pool.append({"id": "rate", "name": "+15% Fire Rate", "desc": "Shoot faster, nonstop"})
 	if move_lv < 5:
-		pool.append({"id": "move", "name": "+10% Speed"})
+		pool.append({"id": "move", "name": "+10% Speed", "desc": "Outrun the horde"})
 	if magnet_lv < 5:
-		pool.append({"id": "magnet", "name": "+30% Magnet"})
+		pool.append({"id": "magnet", "name": "+30% Magnet", "desc": "Vacuum XP from afar"})
 	if hp_lv < 5:
-		pool.append({"id": "hp", "name": "+20% Max HP & Heal"})
+		pool.append({"id": "hp", "name": "+20% Max HP & Heal", "desc": "Tougher + patch up"})
 	if not has_fork:
-		pool.append({"id": "fork", "name": "NEW: Fork Boomerang"})
+		pool.append({"id": "fork", "name": "NEW: Fork Boomerang", "desc": "Twin piercing forks"})
 	pool.shuffle()
 	return pool.slice(0, 3)
 

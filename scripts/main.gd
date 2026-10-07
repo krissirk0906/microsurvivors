@@ -185,8 +185,10 @@ func _on_player_died() -> void:
 func _finish(win: bool) -> void:
 	var sc := score + int(run_time) * 2 + kills * 5
 	score = sc
-	var hi := int(best["highscore"])
+	var old_hi := int(best["highscore"])
+	var hi := old_hi
 	var bt := float(best["best_time"])
+	var is_best := sc > old_hi and old_hi > 0
 	if sc > hi:
 		hi = sc
 	if run_time > bt:
@@ -196,7 +198,7 @@ func _finish(win: bool) -> void:
 	var lv := 1
 	if player != null and is_instance_valid(player):
 		lv = player.level
-	hud.show_gameover(win, sc, run_time, kills, lv)
+	hud.show_gameover(win, sc, run_time, kills, lv, is_best)
 
 func _on_player_leveled() -> void:
 	pending_levels += 1

@@ -80,6 +80,7 @@ flash + haptics, persisted sound/reduce-motion prefs, numbered upgrade cards.
 
 ## Versions
 
+* **v0.5** — Stitch redesign pass (chunky arcade buttons, neon panel rims, upgrade descriptions, pause stats, game-over grid + NEW BEST, gem group fix)
 * **v0.4** — camera/visual bugfixes found via rendered screenshots, persisted prefs, VIBRATE permission
 * **v0.3** — skill-driven UX pass (pause menu, hint, haptics, toggles)
 * **v0.2** — UI overhaul (fonts, restyled HUD/menus)
